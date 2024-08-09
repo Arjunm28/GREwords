@@ -18,11 +18,18 @@ class WordMeaningApp:
         # Shuffle the words to randomize order
         random.shuffle(self.words_meanings)
 
+        self.filtered_words = self.words_meanings
         self.index = 0
 
         # Create main frame
         self.main_frame = tk.Frame(self.master, bg='#ffffff', padx=20, pady=20)
         self.main_frame.pack(expand=True, fill=tk.BOTH)
+
+        # Create and pack the search bar
+        self.search_var = tk.StringVar()
+        self.search_entry = tk.Entry(self.main_frame, textvariable=self.search_var, font=('Arial', 14))
+        self.search_entry.pack(pady=10, fill=tk.X)
+        self.search_entry.bind('<KeyRelease>', self.filter_words)
 
         # Create and pack the heading label
         self.heading = tk.Label(self.main_frame, text='', font=('Arial', 28, 'bold'), bg='#ffffff', fg='#333333')
@@ -45,14 +52,20 @@ class WordMeaningApp:
         # Display the first word and meaning
         self.display_word_meaning()
 
+    def filter_words(self, event):
+        query = self.search_var.get().lower()
+        self.filtered_words = [word for word in self.words_meanings if query in word['word'].lower()]
+        self.index = 0
+        self.display_word_meaning()
+
     def display_word_meaning(self):
         # Check if there are more words to display
-        if self.index < len(self.words_meanings):
-            word = self.words_meanings[self.index]['word']
-            meaning = self.words_meanings[self.index]['meaning']
+        if self.index < len(self.filtered_words):
+            word = self.filtered_words[self.index]['word']
+            meaning = self.filtered_words[self.index]['meaning']
             self.heading.config(text=word)
             self.meaning.config(text=meaning)
-            self.progress_label.config(text=f'Word {self.index + 1} of {len(self.words_meanings)}')
+            self.progress_label.config(text=f'Word {self.index + 1} of {len(self.filtered_words)}')
         else:
             messagebox.showinfo('Info', 'No more words!')
             self.index = 0  # Optionally reset index to start over
